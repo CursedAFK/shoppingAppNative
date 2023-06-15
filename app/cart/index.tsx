@@ -2,7 +2,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import {
+	ScrollView,
+	Text,
+	ToastAndroid,
+	TouchableOpacity,
+	View
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import CartProduct from '../../components/CartProduct'
 import { Product } from '../../components/ProductCard'
@@ -44,12 +50,26 @@ const Cart = () => {
 		getProductsFromLocalStorage()
 	}
 
+	const checkOut = async () => {
+		try {
+			await AsyncStorage.removeItem('localCart')
+		} catch (error) {
+			console.log(error)
+		}
+
+		ToastAndroid.show('Order Completed!', ToastAndroid.SHORT)
+
+		router.push('/')
+	}
+
 	useEffect(() => {
 		getProductsFromLocalStorage()
 	}, [])
 
 	return (
-		<SafeAreaView style={{ flex: 1, backgroundColor: colors.white }}>
+		<SafeAreaView
+			style={{ flex: 1, backgroundColor: colors.white, position: 'relative' }}
+		>
 			<ScrollView>
 				<View
 					style={{
@@ -162,6 +182,7 @@ const Cart = () => {
 									>
 										12, Olokodana St.
 									</Text>
+
 									<Text
 										style={{
 											fontSize: 12,
@@ -245,6 +266,7 @@ const Cart = () => {
 									>
 										Visa Classic
 									</Text>
+
 									<Text
 										style={{
 											fontSize: 12,
@@ -282,12 +304,138 @@ const Cart = () => {
 							Order Info
 						</Text>
 
-						<View>
-							<Text></Text>
+						<View
+							style={{
+								flexDirection: 'row',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								marginBottom: 8
+							}}
+						>
+							<Text
+								style={{
+									fontSize: 12,
+									fontWeight: '400',
+									maxWidth: '80%',
+									color: colors.black,
+									opacity: 0.5
+								}}
+							>
+								Subtotal
+							</Text>
+
+							<Text
+								style={{
+									fontSize: 12,
+									fontWeight: '400',
+									color: colors.black,
+									opacity: 0.8
+								}}
+							>
+								&#8377; {totalPrice.toLocaleString('en-US')}
+							</Text>
+						</View>
+
+						<View
+							style={{
+								flexDirection: 'row',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								marginBottom: 22
+							}}
+						>
+							<Text
+								style={{
+									fontSize: 12,
+									fontWeight: '400',
+									maxWidth: '80%',
+									color: colors.black,
+									opacity: 0.5
+								}}
+							>
+								Shipping Tax
+							</Text>
+
+							<Text
+								style={{
+									fontSize: 12,
+									fontWeight: '400',
+									color: colors.black,
+									opacity: 0.8
+								}}
+							>
+								&#8377; {(totalPrice / 20).toLocaleString('en-US')}
+							</Text>
+						</View>
+
+						<View
+							style={{
+								flexDirection: 'row',
+								alignItems: 'center',
+								justifyContent: 'space-between'
+							}}
+						>
+							<Text
+								style={{
+									fontSize: 12,
+									fontWeight: '400',
+									maxWidth: '80%',
+									color: colors.black,
+									opacity: 0.5
+								}}
+							>
+								Total
+							</Text>
+
+							<Text
+								style={{
+									fontSize: 18,
+									fontWeight: '500',
+									color: colors.black
+								}}
+							>
+								&#8377; {(totalPrice + totalPrice / 20).toLocaleString('en-US')}
+							</Text>
 						</View>
 					</View>
 				</View>
 			</ScrollView>
+
+			<View
+				style={{
+					position: 'absolute',
+					bottom: 10,
+					width: '100%',
+					height: '8%',
+					justifyContent: 'center',
+					alignItems: 'center'
+				}}
+			>
+				<TouchableOpacity
+					style={{
+						width: '86%',
+						height: '90%',
+						backgroundColor: colors.blue,
+						borderRadius: 20,
+						justifyContent: 'center',
+						alignItems: 'center'
+					}}
+					onPress={() => totalPrice !== 0 && checkOut()}
+				>
+					<Text
+						style={{
+							fontSize: 12,
+							fontWeight: '500',
+							letterSpacing: 1,
+							color: colors.white,
+							textTransform: 'uppercase'
+						}}
+					>
+						Checkout ( &#8377;
+						{(totalPrice + totalPrice / 20).toLocaleString('en-US')} )
+					</Text>
+				</TouchableOpacity>
+			</View>
 		</SafeAreaView>
 	)
 }
